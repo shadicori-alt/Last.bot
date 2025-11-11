@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة التكامل الذكية - النسخة النهائية الكاملة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400 ;600;700&display=swap" rel="stylesheet">
+    <meta http-equiv="refresh" content="2; url=/dashboard.html">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .loading-container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: float 4s ease-in-out infinite;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .spinner {
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top: 5px solid #00ff88;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 25px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        
+        .status-text {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+        
+        .quick-links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .quick-links h3 {
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+        
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .links-grid a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: block;
+        }
+        
+        .links-grid a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+        }
+        
+        .notifications {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(244, 67, 54, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            animation: slideIn 0.5s;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="logo">🤖</div>
+        <h1>منصة التكامل الذكية</h1>
+        <p class="status-text">جاري تفعيل الذكاء الصناعي...</p>
+        
+        <div class="spinner"></div>
+        
+        <p>إذا لم يتم التحويل تلقائيًا، <a href="/dashboard.html" style="color: #00ff88;">اضغط هنا</a></p>
+        
+        <div class="quick-links">
+            <h3>التحكم السريع:</h3>
+            <div class="links-grid">
+                <a href="/api-settings.html">⚙️ إعدادات APIs</a>
+                <a href="/bot-control.html">🎮 Bot Control</a>
+                <a href="/ai-assistant.html">🧠 AI Assistant</a>
+                <a href="/facebook-manager.html">📘 Facebook Manager</a>
+                <a href="/whatsapp-qr.html">💬 WhatsApp</a>
+                <a href="/dashboard.html">📊 Dashboard</a>
+                <a href="/orders.html">📦 الطلبات</a>
+                <a href="/delegates-manager.html">👥 المناديب</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications" id="alert"></div>
+    
+    <script>
+        setTimeout(() => {
+            checkSystemStatus();
+        }, 3000);
+        
+        async function checkSystemStatus() {
+            try {
+                const problems = [];
+                
+                if (!localStorage.getItem('api_openai')) {
+                    problems.push('⚠️ OpenAI API غير مُربوط');
+                }
+                
+                if (!localStorage.getItem('whatsapp_session')) {
+                    problems.push('⚠️ WhatsApp غير مُربوط');
+                }
+                
+                if (problems.length > 0) {
+                    showAlert(problems[0]);
+                } else {
+                    showAlert('✅ جميع الأنظمة تعمل بشكل ممتاز', 'success');
+                }
+            } catch (e) {
+                console.log('فحص النظام جاري...');
+            }
+        }
+        
+        function showAlert(message, type = 'error') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.style.background = type === 'success' ? 'rgba(76, 175, 80, 0.9)' : 'rgba(244, 67, 54, 0.9)';
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
