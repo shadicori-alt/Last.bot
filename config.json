@@ -1,0 +1,31 @@
+{
+  "assistant": {
+    "name": "AI Supervisor Pro",
+    "role": "مدير العمليات والتفاعل الذكي",
+    "ownerId": "YOUR_WHATSAPP_NUMBER@c.us",
+    "autoReply": true,
+    "learning": true,
+    "notifyOn": {
+      "highVolume": true,
+      "apiErrors": true,
+      "newLeads": true
+    },
+    "responseDelay": {
+      "whatsapp": 2000,
+      "facebook": 3000,
+      "messenger": 2500
+    }
+  },
+  "ai": {
+    "provider": "openai",
+    "model": "gpt-4-turbo",
+    "fallbackEnabled": true,
+    "contextSize": 10
+  },
+  "integrations": {
+    "whatsapp": { "enabled": true, "autoReconnect": true },
+    "facebook": { "enabled": true, "pageId": null },
+    "gmail": { "enabled": true, "notifyViaEmail": false },
+    "googlesheets": { "enabled": true, "autoLog": true }
+  }
+}
