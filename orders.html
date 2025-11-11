@@ -403,4 +403,185 @@
                     <td>
                         ${order.status === 'pending' ? 
                             `<button class="btn-action btn-assign" onclick="manualAssign(${order.id})">تعيين يدوي</button>` : 
-                            `<button class="btn-action btn-whatsapp" onclick="sendWhatsApp
+                            `<button class="btn-action btn-whatsapp" onclick="sendWhatsAppToCustomer(${order.id})">واتساب العميل</button>
+                             <button class="btn-action btn-track" onclick="trackOrder(${order.id})">متابعة</button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // تعيين طلب يدوياً
+        function manualAssign(orderId) {
+            const delegates = JSON.parse(localStorage.getItem('delegates') || '[]');
+            
+            if (delegates.length === 0) {
+                alert('❌ لا يوجد مناديب مسجلين! أضف مناديب أولاً.');
+                return;
+            }
+            
+            const delegateNames = delegates.map(d => d.name).join(', ');
+            const selectedDelegate = prompt(`اختر مندوب:\n${delegateNames}`);
+            
+            if (!selectedDelegate) return;
+            
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const order = orders.find(o => o.id === orderId);
+            
+            if (order) {
+                order.delegate = selectedDelegate;
+                order.status = 'assigned';
+                order.assignedAt = new Date().toISOString();
+                
+                localStorage.setItem('orders', JSON.stringify(orders));
+                loadOrders();
+                updateStats();
+                
+                // إشعار المندوب
+                const delegate = delegates.find(d => d.name === selectedDelegate);
+                sendWhatsAppNotification(order, delegate);
+                
+                alert('✅ تم التعيين بنجاح وإرسال إشعار للمندوب!');
+            }
+        }
+        
+        // إرسال إشعار واتساب للمندوب
+        function sendWhatsAppNotification(order, delegate = null) {
+            if (!delegate) {
+                const delegates = JSON.parse(localStorage.getItem('delegates') || '[]');
+                delegate = delegates.find(d => d.name === order.delegate);
+            }
+            
+            if (!delegate) return;
+            
+            const message = `🛵 طلب جديد مُعين لك!
+            
+👤 العميل: ${order.customerName}
+📱 الهاتف: ${order.customerPhone}
+📍 المحافظة: ${getGovernorateName(order.governorate)}
+🏠 العنوان: ${order.address}
+💰 القيمة: ${order.value} ريال
+📦 التفاصيل: ${order.details}
+
+⏰ الوقت: ${new Date().toLocaleString('ar-EG')}`;
+            
+            // محاكاة إرسال واتساب
+            console.log(`📱 إرسال لـ ${delegate.phone}:\n${message}`);
+            
+            // حفظ في سجل الإشعارات
+            const notifications = JSON.parse(localStorage.getItem('whatsapp_notifications') || '[]');
+            notifications.push({
+                to: delegate.name,
+                phone: delegate.phone,
+                message: message,
+                timestamp: new Date().toISOString(),
+                sent: true
+            });
+            localStorage.setItem('whatsapp_notifications', JSON.stringify(notifications));
+            
+            // تسجيل في الذكاء المساعد
+            AIAssistant.logOrderAssignment(delegate, order);
+        }
+        
+        // إرسال واتساب للعميل
+        function sendWhatsAppToCustomer(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order) return;
+            
+            const message = `✅ تم تأكيد طلبك!
+            
+رقم الطلب: #${order.id}
+المندوب: ${order.delegate}
+وقت التعيين: ${new Date(order.assignedAt).toLocaleString('ar-EG')}
+📍 العنوان: ${order.address}
+💰 القيمة: ${order.value} ريال
+
+سيتواصل معك المندوب خلال ساعة.`;
+            
+            console.log(`📱 إرسال للعميل ${order.customerPhone}:\n${message}`);
+            alert('✅ تم إرسال رسالة تأكيد للعميل!');
+        }
+        
+        // متابعة الطلب
+        function trackOrder(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order) return;
+            
+            const status = prompt(`تحديث حالة الطلب #${orderId}:\n1- معين\n2- في الطريق\n3- تم التسليم`);
+            
+            if (status === '3') {
+                order.status = 'delivered';
+                order.deliveredAt = new Date().toISOString();
+                
+                // إرسال إشعار تسليم للعميل
+                const deliveryMessage = `🎉 تم تسليم طلبك #${order.id} بنجاح!\nشكراً لثقتك فينا.`;
+                console.log(`📱 إرسال للعميل: ${deliveryMessage}`);
+                
+                // إشعار الذكاء المساعد
+                AIAssistant.notifyOrderCompleted(order);
+                
+                alert('✅ تم تحديث الحالة وإرسال إشعار للعميل!');
+            } else if (status === '2') {
+                order.status = 'in_transit';
+                alert('✅ تم تحديث الحالة: في الطريق');
+            }
+            
+            localStorage.setItem('orders', JSON.stringify(orders));
+            loadOrders();
+            updateStats();
+        }
+        
+        // تحديث الإحصائيات
+        function updateStats() {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            
+            document.getElementById('total-orders').textContent = orders.length;
+            document.getElementById('pending-orders').textContent = orders.filter(o => o.status === 'pending').length;
+            document.getElementById('assigned-orders').textContent = orders.filter(o => o.status === 'assigned' || o.status === 'in_transit').length;
+            document.getElementById('delivered-orders').textContent = orders.filter(o => o.status === 'delivered').length;
+        }
+        
+        // التحقق من الطلبات غير المعينة
+        function checkForUnassignedOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const unassigned = orders.filter(o => o.status === 'pending');
+            
+            if (unassigned.length > 0) {
+                setTimeout(() => {
+                    alert(`⚠️ لديك ${unassigned.length} طلبات غير معينة! اذهب لإدارة الطلبات.`);
+                }, 3000);
+            }
+        }
+        
+        // دوال مساعدة
+        function getGovernorateName(code) {
+            const names = {
+                cairo: 'القاهرة',
+                alexandria: 'الإسكندرية',
+                giza: 'الجيزة',
+                mansoura: 'المنصورة',
+                tanta: 'طنطا',
+                other: 'أخرى'
+            };
+            return names[code] || code;
+        }
+        
+        function getStatusBadge(status) {
+            const badges = {
+                pending: '<span class="status-pending">قيد الانتظار</span>',
+                assigned: '<span class="status-assigned">معين</span>',
+                in_transit: '<span class="status-assigned">في الطريق</span>',
+                delivered: '<span class="status-delivered">مُسلم</span>'
+            };
+            return badges[status] || status;
+        }
+    </script>
+    <script src="ai-engine.js"></script>
+    <script src="notification-system.js"></script>
+    <script src="reminder-system.js"></script>
+</body>
+</html>
