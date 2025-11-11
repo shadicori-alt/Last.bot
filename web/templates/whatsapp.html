@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}إعداد WhatsApp - Last.bot{% endblock %}
+
+{% block content %}
+<div class="whatsapp-setup">
+    <h1>📱 إعداد WhatsApp</h1>
+    
+    <div class="qr-container" id="qrBox">
+        <p>امسح رمز QR التالي باستخدام تطبيق WhatsApp:</p>
+        <img id="qrImage" src="" alt="QR Code" style="width: 250px; height: 250px; margin: 20px auto; display: block;">
+        <button onclick="generateQR()">🔄 إعادة توليد QR</button>
+    </div>
+    
+    <div class="status-box">
+        <h3>حالة الاتصال:</h3>
+        <p id="statusText">⏳ جاري الاتصال...</p>
+    </div>
+</div>
+
+<script>
+async function generateQR() {
+    const response = await fetch('/api/whatsapp/qr');
+    const data = await response.json();
+    
+    if(data.status === 'qr_ready') {
+        document.getElementById('qrImage').src = data.qr_path;
+        document.getElementById('statusText').textContent = "✅ جاهز للمسح";
+    } else {
+        document.getElementById('statusText').textContent = "❌ خطأ: " + data.message;
+    }
+}
+
+// توليد QR تلقائياً عند فتح الصفحة
+generateQR();
+</script>
+{% endblock %}
