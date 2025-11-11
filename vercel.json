@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/api-settings", "destination": "/api-settings.html" },
+    { "source": "/bot-control", "destination": "/bot-control.html" },
+    { "source": "/ai-assistant", "destination": "/ai-assistant.html" },
+    { "source": "/whatsapp-qr", "destination": "/whatsapp-qr.html" },
+    { "source": "/facebook-manager", "destination": "/facebook-manager.html" },
+    { "source": "/delegates", "destination": "/delegates-manager.html" },
+    { "source": "/orders", "destination": "/orders.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    }
+  ]
+}
