@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}API Documentation - Last.bot{% endblock %}
+
+{% block content %}
+<div class="api-docs">
+    <h1>📡 API Documentation</h1>
+    
+    <div class="endpoint">
+        <h3>POST /api/auth/login</h3>
+        <p>تسجيل الدخول</p>
+        <pre>{
+  "username": "admin",
+  "password": "123456"
+}</pre>
+    </div>
+    
+    <div class="endpoint">
+        <h3>GET /api/status</h3>
+        <p>حالة البوت</p>
+        <button onclick="testEndpoint('/api/status')">اختبار</button>
+    </div>
+    
+    <div class="endpoint">
+        <h3>GET /api/whatsapp/qr</h3>
+        <p>جلب QR Code</p>
+        <button onclick="testEndpoint('/api/whatsapp/qr')">اختبار</button>
+    </div>
+</div>
+
+<script>
+function testEndpoint(url) {
+    fetch(url, {
+        headers: {'Authorization': 'Bearer {{ token }}'}
+    }).then(r => r.json()).then(data => {
+        alert(JSON.stringify(data, null, 2));
+    }).catch(err => alert('خطأ: ' + err));
+}
+</script>
+{% endblock %}
