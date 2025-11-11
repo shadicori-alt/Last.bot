@@ -3,29 +3,42 @@
     "name": "AI Supervisor Pro",
     "role": "مدير العمليات والتفاعل الذكي",
     "ownerId": "YOUR_WHATSAPP_NUMBER@c.us",
+    "ownerEmail": "your-email@example.com",
     "autoReply": true,
     "learning": true,
-    "notifyOn": {
-      "highVolume": true,
-      "apiErrors": true,
-      "newLeads": true
-    },
+    "maxRetries": 3,
     "responseDelay": {
       "whatsapp": 2000,
-      "facebook": 3000,
-      "messenger": 2500
+      "facebook": 3000
     }
   },
   "ai": {
     "provider": "openai",
     "model": "gpt-4-turbo",
     "fallbackEnabled": true,
-    "contextSize": 10
+    "contextSize": 10,
+    "temperature": 0.7
   },
   "integrations": {
-    "whatsapp": { "enabled": true, "autoReconnect": true },
-    "facebook": { "enabled": true, "pageId": null },
-    "gmail": { "enabled": true, "notifyViaEmail": false },
-    "googlesheets": { "enabled": true, "autoLog": true }
+    "whatsapp": {
+      "enabled": true,
+      "sessionFile": "sessions/whatsapp_session.json",
+      "qrTimeout": 60000
+    },
+    "facebook": {
+      "enabled": false,
+      "pageId": null
+    },
+    "gmail": {
+      "enabled": false
+    },
+    "googlesheets": {
+      "enabled": true,
+      "sheetId": "YOUR_SHEET_ID"
+    }
+  },
+  "security": {
+    "jwtSecret": "YOUR_SUPER_SECRET_KEY_CHANGE_THIS",
+    "tokenExpiry": "24h"
   }
 }
