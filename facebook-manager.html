@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook Manager - إدارة تعليقات متطورة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1877f2, #0e5ecf);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .panel {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        .panel h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-family: 'Cairo';
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1877f2, #0e5ecf);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-danger {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .comments-stream {
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .comment-item {
+            background: rgba(255,255,255,0.05);
+            border-left: 4px solid #1877f2;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        .comment-item .user {
+            font-weight: 600;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        .comment-item .text {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .comment-item .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .reply-section {
+            margin-top: 10px;
+            display: none;
+        }
+        .reply-section textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.4);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 1.8rem;
+            color: #00ff88;
+        }
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-left: 10px;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Facebook Manager Pro</h1>
+            <p>إدارة متطورة لتعليقات ورسائل Facebook</p>
+        </div>
+        
+        <div class="nav-menu">
+            <a href="/" class="nav-btn">🏠 الرئيسية</a>
+            <a href="/dashboard.html" class="nav-btn">📊 Dashboard</a>
+            <a href="/bot-control.html" class="nav-btn">🤖 Bot Control</a>
+            <a href="/ai-assistant.html" class="nav-btn">🧠 AI Assistant</a>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="total-comments">0</h3>
+                <p>تعليقات جديدة</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="replied-comments">0</h3>
+                <p>تم الرد عليها</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="pending-comments">0</h3>
+                <p>قيد الانتظار</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="response-rate">0%</h3>
+                <p>معدل الرد</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="panel">
+                <h2>📌 إدارة المنشورات</h2>
+                <div class="form-group">
+                    <label>رابط المنشور (URL)</label>
+                    <input type="url" id="post-url" placeholder="https://facebook.com/post/123456">
+                </div>
+                <div class="form-group">
+                    <label>اسم المنشور للتعريف</label>
+                    <input type="text" id="post-name" placeholder="مثال: إعلان المنتج X">
+                </div>
+                <div class="form-group">
+                    <label>الجملة المفتاحية للرد التلقائي</label>
+                    <input type="text" id="post-keyword" placeholder="مثال: سعر, متاح, خصم">
+                </div>
+                <button class="btn-primary" onclick="addPost()">➕ إضافة منشور للمراقبة</button>
+                
+                <h3 style="margin-top: 25px; color: #ffd700;">المنشورات النشطة:</h3>
+                <div id="posts-list" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="panel">
+                <h2>💬 تعليقات حية <span class="live-indicator"></span></h2>
+                <div class="form-group">
+                    <label>تحديث كل:</label>
+                    <select id="refresh-interval" onchange="setRefreshInterval()">
+                        <option value="10000">10 ثواني</option>
+                        <option value="5000">5 ثواني</option>
+                        <option value="3000">3 ثواني</option>
+                    </select>
+                </div>
+                <div class="comments-stream" id="comments-stream">
+                    <p>جاري تحميل التعليقات...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel" style="margin-top: 30px;">
+            <h2>🎯 الردود الذكية لكل منشور</h2>
+            <div class="form-group">
+                <label>اختر المنشور</label>
+                <select id="post-selector" onchange="loadPostReplies()">
+                    <option value="">-- اختر منشوراً --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>الكلمة المفتاحية (مثال: سعر, خصم, متى)</label>
+                <input type="text" id="reply-keyword" placeholder="سعر">
+            </div>
+            <div class="form-group">
+                <label>نص الرد (ممكن تستخدم {name} للاسم)</label>
+                <textarea id="reply-text" rows="3" placeholder="مرحباً {name}، سعر المنتج هو 199 ريال فقط."></textarea>
+            </div>
+            <div class="form-group">
+                <label>الإجراء بعد الرد</label>
+                <select id="reply-action">
+                    <option value="none">فقط الرد</option>
+                    <option value="whatsapp">إرسال رسالة واتساب</option>
+                    <option value="sheet">تسجيل في Google Sheets</option>
+                    <option value="tag">وسم العميل</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="saveReplyTemplate()">💾 حفظ قالب الرد</button>
+            
+            <h3 style="margin-top: 25px; color: #ffd700;">قوالب الردود المحفوظة:</h3>
+            <div id="replies-list"></div>
+        </div>
+    </div>
+    
+    <script>
+        let refreshIntervalId;
+        
+        window.onload = function() {
+            loadPosts();
+            loadReplies();
+            startLiveComments();
+            updateStats();
+        };
+        
+        function addPost() {
+            const url = document.getElementById('post-url').value;
+            const name = document.getElementById('post-name').value;
+            const keyword = document.getElementById('post-keyword').value;
+            
+            if (!url || !name) {
+                alert('❌ الرابط والاسم إلزاميين!');
+                return;
+            }
+            
+            const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+            const post = {
+                id: Date.now(),
+                url,
+                name,
+                keyword,
+                active: true,
+                addedAt: new Date().toISOString()
+            };
+            
+            posts.push(post);
+            localStorage.setItem('monitored_posts', JSON.stringify(posts));
+            
+            document.getElementById('post-url').value = '';
+            document.getElementById('post-name').value = '';
+            document.getElementById('post-keyword').value = '';
+            
+            loadPosts();
+            updatePostSelector();
+            addLog('facebook', `✅ تم إضافة منشور: ${name}`);
+            alert('✅ تم إضافة المنشور بنجاح!');
+        }
+        
+        function loadPosts() {
+            const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+            const container = document.getElementById('posts-list');
+            
+            if (posts.length === 0) {
+                container.innerHTML = '<p style="color:#888;">لا يوجد منشورات مضافة</p>';
+                return;
+            }
+            
+            container.innerHTML = posts.map(post => `
+                <div style="background:rgba(255,255,255,0.05);padding:15px;margin-bottom:10px;border-radius:8px;">
+                    <div style="font-weight:bold;color:#ffd700;">${post.name}</div>
+                    <div style="font-size:12px;color:#aaa;margin:5px 0;">${post.url}</div>
+                    <div style="font-size:12px;">كلمات مفتاحية: <span style="color:#00ff88;">${post.keyword || 'غير محدد'}</span></div>
+                    <div style="margin-top:10px;">
+                        <button class="btn-danger" onclick="deletePost(${post.id})">🗑️ حذف</button>
+                        <button class="btn-primary" style="padding:5px 15px;font-size:12px;" onclick="togglePost(${post.id})">
+                            ${post.active ? '⏸️ إيقاف' : '▶️ تفعيل'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            updatePostSelector();
+        }
+        
+        function deletePost(id) {
+            if (!confirm('⚠️ هل أنت متأكد من حذف هذا المنشور؟')) return;
+            
+            const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+            const filtered = posts.filter(p => p.id !== id);
+            localStorage.setItem('monitored_posts', JSON.stringify(filtered));
+            
+            loadPosts();
+            addLog('facebook', `🗑️ تم حذف منشور`);
+        }
+        
+        function togglePost(id) {
+            const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+            const post = posts.find(p => p.id === id);
+            if (post) {
+                post.active = !post.active;
+                localStorage.setItem('monitored_posts', JSON.stringify(posts));
+                loadPosts();
+                addLog('facebook', `${post.active ? '▶️ تم تفعيل' : '⏸️ تم إيقاف'}: ${post.name}`);
+            }
+        }
+        
+        function updatePostSelector() {
+            const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+            const selector = document.getElementById('post-selector');
+            
+            selector.innerHTML = '<option value="">-- اختر منشوراً --</option>' +
+                posts.map(post => `<option value="${post.id}">${post.name}</option>`).join('');
+        }
+        
+        function saveReplyTemplate() {
+            const postId = document.getElementById('post-selector').value;
+            const keyword = document.getElementById('reply-keyword').value;
+            const text = document.getElementById('reply-text').value;
+            const action = document.getElementById('reply-action').value;
+            
+            if (!postId || !keyword || !text) {
+                alert('❌ جميع الحقول إلزامية!');
+                return;
+            }
+            
+            const replies = JSON.parse(localStorage.getItem('reply_templates') || '{}');
+            if (!replies[postId]) replies[postId] = [];
+            
+            replies[postId].push({
+                id: Date.now(),
+                keyword,
+                text,
+                action,
+                createdAt: new Date().toISOString()
+            });
+            
+            localStorage.setItem('reply_templates', JSON.stringify(replies));
+            
+            document.getElementById('reply-keyword').value = '';
+            document.getElementById('reply-text').value = '';
+            document.getElementById('reply-action').value = 'none';
+            
+            loadReplies();
+            addLog('facebook', `💬 تم إضافة قالب رد جديد`);
+            alert('✅ تم حفظ قالب الرد!');
+        }
+        
+        function loadReplies() {
+            const replies = JSON.parse(localStorage.getItem('reply_templates') || '{}');
+            const container = document.getElementById('replies-list');
+            
+            let html = '';
+            const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+            
+            Object.keys(replies).forEach(postId => {
+                const post = posts.find(p => p.id == postId);
+                if (post) {
+                    html += `<div style="margin-bottom:20px;"><div style="font-weight:bold;color:#ffd700;margin-bottom:10px;">📌 ${post.name}</div>`;
+                    
+                    replies[postId].forEach(reply => {
+                        html += `
+                            <div style="background:rgba(255,255,255,0.05);padding:10px;margin-bottom:8px;border-radius:6px;font-size:14px;">
+                                <div style="color:#00ff88;">كلمة: ${reply.keyword}</div>
+                                <div style="font-size:12px;color:#aaa;margin:3px 0;">رد: ${reply.text.substring(0, 50)}...</div>
+                                <div style="font-size:11px;">إجراء: ${reply.action}</div>
+                                <button class="btn-danger" style="padding:4px 10px;font-size:12px;margin-top:5px;" onclick="deleteReply('${postId}', ${reply.id})">حذف</button>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+            });
+            
+            container.innerHTML = html || '<p style="color:#888;">لا يوجد قوالب ردود</p>';
+        }
+        
+        function deleteReply(postId, replyId) {
+            const replies = JSON.parse(localStorage.getItem('reply_templates') || '{}');
+            if (replies[postId]) {
+                replies[postId] = replies[postId].filter(r => r.id !== replyId);
+                localStorage.setItem('reply_templates', JSON.stringify(replies));
+                loadReplies();
+                addLog('facebook', `🗑️ تم حذف قالب رد`);
+            }
+        }
+        
+        function startLiveComments() {
+            loadLiveComments();
+            const interval = document.getElementById('refresh-interval').value;
+            refreshIntervalId = setInterval(loadLiveComments, parseInt(interval));
+        }
+        
+        function loadLiveComments() {
+            const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+            const stream = document.getElementById('comments-stream');
+            
+            const mockComments = [
+                { user: 'أحمد محمد', text: 'كم سعر المنتج؟', post: 'إعلان المنتج X', time: 'منذ 2 دقيقة' },
+                { user: 'سارة خالد', text: 'هل متوفر الآن؟', post: 'إعلان المنتج X', time: 'منذ 5 دقيقة' },
+                { user: 'محمود علي', text: 'عايز أطلب', post: 'إعلان المنتج Y', time: 'منذ 8 دقيقة' },
+                { user: 'فاطمة حسن', text: 'في خصم ولا ايه؟', post: 'إعلان المنتج Z', time: 'منذ 10 دقيقة' }
+            ];
+            
+            stream.innerHTML = mockComments.map(comment => `
+                <div class="comment-item" id="comment-${Date.now()}">
+                    <div class="user">${comment.user} <span style="font-size:12px;color:#aaa;">(${comment.time})</span></div>
+                    <div class="text">${comment.text}</div>
+                    <div style="font-size:12px;color:#00ff88;margin-bottom:10px;">منشور: ${comment.post}</div>
+                    <div class="actions">
+                        <button class="btn-primary" style="padding:5px 15px;font-size:12px;" onclick="replyToComment(this)">💬 رد</button>
+                        <button class="btn-danger" style="padding:5px 15px;font-size:12px;" onclick="markAsReplied(this)">✅ تم الرد</button>
+                    </div>
+                    <div class="reply-section">
+                        <textarea placeholder="اكتب ردك هنا..."></textarea>
+                        <button class="btn-primary" style="margin-top:10px;padding:8px;" onclick="sendReply(this)">إرسال</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateStats();
+        }
+        
+        function replyToComment(btn) {
+            const replySection = btn.closest('.comment-item').querySelector('.reply-section');
+            replySection.style.display = replySection.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        function sendReply(btn) {
+            const textarea = btn.parentElement.querySelector('textarea');
+            const reply = textarea.value.trim();
+            
+            if (!reply) {
+                alert('❌ اكتب الرد أولاً!');
+                return;
+            }
+            
+            addLog('facebook', `💬 تم الرد على تعليق: ${reply.substring(0, 30)}...`);
+            alert('✅ تم إرسال الرد!');
+            
+            textarea.value = '';
+            btn.closest('.reply-section').style.display = 'none';
+            markAsReplied(btn);
+        }
+        
+        function markAsReplied(btn) {
+            const commentItem = btn.closest('.comment-item');
+            commentItem.style.opacity = '0.5';
+            commentItem.style.borderLeftColor = '#00ff88';
+            btn.textContent = '✅ تمت الإجابة';
+            btn.disabled = true;
+        }
+        
+        function setRefreshInterval() {
+            clearInterval(refreshIntervalId);
+            startLiveComments();
+            addLog('facebook', `🔄 تم تغيير التحديث إلى: ${document.getElementById('refresh-interval').value/1000} ثانية`);
+        }
+        
+        function updateStats() {
+            const comments = document.querySelectorAll('.comment-item').length;
+            const replied = document.querySelectorAll('.comment-item[style*="opacity: 0.5"]').length;
+            
+            document.getElementById('total-comments').textContent = comments;
+            document.getElementById('replied-comments').textContent = replied;
+            document.getElementById('pending-comments').textContent = comments - replied;
+            document.getElementById('response-rate').textContent = comments > 0 ? 
+                Math.round((replied / comments) * 100) + '%' : '0%';
+        }
+        
+        function addLog(service, message) {
+            const logs = JSON.parse(localStorage.getItem('bot_logs') || '[]');
+            logs.unshift({
+                timestamp: new Date().toISOString(),
+                service,
+                message,
+                type: 'info'
+            });
+            localStorage.setItem('bot_logs', JSON.stringify(logs.slice(0, 500)));
+        }
+    </script>
+</body>
+</html>
