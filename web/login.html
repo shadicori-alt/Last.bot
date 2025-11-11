@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تسجيل الدخول - Last.bot</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 400px;
+        }
+        h2 { color: #333; text-align: center; margin-bottom: 30px; font-size: 24px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #555; font-weight: bold; }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background: #5568d3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 5px;
+            display: none;
+        }
+        .qr-container {
+            text-align: center;
+            margin-top: 25px;
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        #qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 15px auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+        .loading {
+            text-align: center;
+            color: #667eea;
+            display: none;
+        }
+        .success {
+            color: #27ae60;
+            background: #d5f4e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>🤖 Last.bot تسجيل الدخول</h2>
+        
+        <div class="loading" id="loading">جاري التحقق...</div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">اسم المستخدم</label>
+                <input type="text" id="username" placeholder="أدخل اسم المستخدم" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" placeholder="أدخل كلمة المرور" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="platform">المنصة</label>
+                <select id="platform">
+                    <option value="dashboard">لوحة التحكم</option>
+                    <option value="whatsapp">واتساب</option>
+                </select>
+            </div>
+            
+            <button type="submit">دخول</button>
+        </form>
+        
+        <div class="error" id="errorMsg"></div>
+        
+        <div class="qr-container" id="qrContainer">
+            <p>📱 امسح رمز QR للواتساب:</p>
+            <img id="qr-code" src="" alt="QR Code">
+            <p style="font-size: 12px; color: #777; margin-top: 10px;">
+                افتح واتساب على هاتفك > الإعدادات > الأجهزة المرتبطة
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('loading');
+            const errorMsg = document.getElementById('errorMsg');
+            const form = document.getElementById('loginForm');
+            
+            loading.style.display = 'block';
+            errorMsg.style.display = 'none';
+            form.style.display = 'none';
+            
+            const credentials = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                platform: document.getElementById('platform').value
+            };
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(credentials)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    localStorage.setItem('token', result.token);
+                    
+                    if (credentials.platform === 'whatsapp') {
+                        const qrResponse = await fetch('http://localhost:5000/api/whatsapp/qr');
+                        const qrData = await qrResponse.json();
+                        
+                        if (qrData.status === 'qr_ready') {
+                            document.getElementById('qr-code').src = qrData.qr_path;
+                            document.getElementById('qrContainer').style.display = 'block';
+                        } else {
+                            window.location.href = '/dashboard';
+                        }
+                    } else {
+                        window.location.href = '/dashboard';
+                    }
+                } else {
+                    throw new Error(result.error);
+                }
+                
+            } catch (error) {
+                loading.style.display = 'none';
+                form.style.display = 'block';
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+                errorMsg.classList.remove('success');
+            }
+        });
+    </script>
+</body>
+</html>
