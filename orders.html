@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الطلبات - منصة التكامل الذكية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400 ;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .order-form {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-family: 'Cairo';
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
+        }
+        
+        .orders-table {
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        th {
+            background: rgba(0,0,0,0.3);
+            color: #ffd700;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #FFA500;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .status-assigned {
+            background: #4ECDC4;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .status-delivered {
+            background: #00FF88;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-action {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin: 2px;
+        }
+        
+        .btn-assign {
+            background: #4ECDC4;
+            color: white;
+        }
+        
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+        
+        .btn-track {
+            background: #1877F2;
+            color: white;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.08);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 إدارة الطلبات المتكاملة</h1>
+            <p>تسجيل، توزيع، ومتابعة الطلبات على المناديب</p>
+        </div>
+        
+        <div class="nav-menu">
+            <a href="/" class="nav-btn">🏠 الرئيسية</a>
+            <a href="/dashboard.html" class="nav-btn">📊 Dashboard</a>
+            <a href="/delegates-manager.html" class="nav-btn">👥 المناديب</a>
+            <a href="/bot-control.html" class="nav-btn">🤖 Bot Control</a>
+        </div>
+        
+        <!-- إحصائيات الطلبات -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <h3 id="total-orders">0</h3>
+                <p>إجمالي الطلبات</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="pending-orders">0</h3>
+                <p>طلبات قيد الانتظار</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="assigned-orders">0</h3>
+                <p>طلبات معينة</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="delivered-orders">0</h3>
+                <p>طلبات مُسلمة</p>
+            </div>
+        </div>
+        
+        <!-- نموذج تسجيل طلب جديد -->
+        <div class="order-form">
+            <h2 style="margin-bottom: 20px; color: #ffd700;">➕ تسجيل طلب جديد</h2>
+            <form id="order-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>اسم العميل</label>
+                        <input type="text" id="customer-name" placeholder="أحمد محمد" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الهاتف</label>
+                        <input type="tel" id="customer-phone" placeholder="01234567890" required>
+                    </div>
+                    <div class="form-group">
+                        <label>المحافظة</label>
+                        <select id="governorate" required>
+                            <option value="">-- اختر المحافظة --</option>
+                            <option value="cairo">القاهرة</option>
+                            <option value="alexandria">الإسكندرية</option>
+                            <option value="giza">الجيزة</option>
+                            <option value="mansoura">المنصورة</option>
+                            <option value="tanta">طنطا</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>العنوان التفصيلي</label>
+                        <input type="text" id="address" placeholder="شارع النيل، عمارة 5" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>تفاصيل الطلب</label>
+                    <textarea id="order-details" rows="3" placeholder="وصف المنتجات المطلوبة..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>قيمة الطلب (ريال)</label>
+                    <input type="number" id="order-value" placeholder="199" required>
+                </div>
+                
+                <button type="submit" class="btn-primary">📦 حفظ وتوزيع الطلب</button>
+            </form>
+        </div>
+        
+        <!-- قائمة الطلبات -->
+        <div class="orders-table">
+            <h2 style="margin-bottom: 20px; color: #ffd700;">📋 قائمة الطلبات</h2>
+            <table id="orders-list">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>العميل</th>
+                        <th>الهاتف</th>
+                        <th>المحافظة</th>
+                        <th>قيمة الطلب</th>
+                        <th>المندوب</th>
+                        <th>الحالة</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: #888;">لا يوجد طلبات مسجلة</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // تهيئة الصفحة
+        window.onload = function() {
+            loadOrders();
+            updateStats();
+            checkForUnassignedOrders();
+        };
+        
+        // تسجيل طلب جديد
+        document.getElementById('order-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const order = {
+                id: Date.now(),
+                customerName: document.getElementById('customer-name').value,
+                customerPhone: document.getElementById('customer-phone').value,
+                governorate: document.getElementById('governorate').value,
+                address: document.getElementById('address').value,
+                details: document.getElementById('order-details').value,
+                value: document.getElementById('order-value').value,
+                status: 'pending',
+                delegate: null,
+                createdAt: new Date().toISOString(),
+                assignedAt: null
+            };
+            
+            // حفظ الطلب
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            orders.push(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            // توزيع الطلب تلقائياً على مندوب
+            assignOrderAutomatically(order);
+            
+            // إفراغ النموذج
+            document.getElementById('order-form').reset();
+            
+            // إعادة تحميل القائمة
+            loadOrders();
+            updateStats();
+            
+            // إرسال إشعار واتساب للمندوب
+            sendWhatsAppNotification(order);
+            
+            alert('✅ تم تسجيل الطلب وتوزيعه بنجاح!');
+        });
+        
+        // توزيع الطلب تلقائياً على المندوب المناسب
+        function assignOrderAutomatically(order) {
+            const delegates = JSON.parse(localStorage.getItem('delegates') || '[]');
+            
+            // البحث عن مندوب في نفس المحافظة
+            const availableDelegate = delegates.find(d => 
+                d.governorate === order.governorate && d.active
+            );
+            
+            if (availableDelegate) {
+                // تعيين الطلب
+                order.delegate = availableDelegate.name;
+                order.status = 'assigned';
+                order.assignedAt = new Date().toISOString();
+                
+                // حفظ التحديث
+                const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                const index = orders.findIndex(o => o.id === order.id);
+                if (index !== -1) {
+                    orders[index] = order;
+                    localStorage.setItem('orders', JSON.stringify(orders));
+                }
+                
+                // إشعار الذكاء المساعد
+                AIAssistant.notifyDelegate(availableDelegate, order);
+            }
+        }
+        
+        // تحميل قائمة الطلبات
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const tbody = document.querySelector('#orders-list tbody');
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #888;">لا يوجد طلبات مسجلة</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>${order.id}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.customerPhone}</td>
+                    <td>${getGovernorateName(order.governorate)}</td>
+                    <td>${order.value} ريال</td>
+                    <td>${order.delegate || 'غير معين'}</td>
+                    <td>${getStatusBadge(order.status)}</td>
+                    <td>
+                        ${order.status === 'pending' ? 
+                            `<button class="btn-action btn-assign" onclick="manualAssign(${order.id})">تعيين يدوي</button>` : 
+                            `<button class="btn-action btn-whatsapp" onclick="sendWhatsApp
