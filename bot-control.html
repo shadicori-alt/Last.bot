@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Control Panel - منصة التكامل الذكية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .bot-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .control-panel {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .control-panel h2 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        
+        .switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .switch.active {
+            background: #00ff88;
+        }
+        
+        .switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+        
+        .switch.active::after {
+            transform: translateX(30px);
+        }
+        
+        .response-template {
+            margin-top: 20px;
+        }
+        
+        .template-item {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .template-item h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .template-item input, .template-item textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 5px;
+            background: rgba(0,0,0,0.4);
+            color: #fff;
+            font-family: 'Cairo';
+            margin-bottom: 10px;
+        }
+        
+        .btn-add, .btn-save {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #0f0c29;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cairo';
+        }
+        
+        .btn-add:hover, .btn-save:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,255,136,0.4);
+        }
+        
+        .btn-danger {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .logs-container {
+            background: #000;
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New';
+            font-size: 12px;
+        }
+        
+        .log-item {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-left: 3px solid #00ff88;
+            padding-left: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Bot Control Center</h1>
+            <p>التحكم الكامل في ردود البوت التلقائية</p>
+        </div>
+        
+        <div class="nav-menu">
+            <a href="/" class="nav-btn">🏠 الرئيسية</a>
+            <a href="/dashboard.html" class="nav-btn">📊 Dashboard</a>
+            <a href="/api-settings.html" class="nav-btn">⚙️ APIs</a>
+            <a href="/ai-assistant.html" class="nav-btn">🧠 AI Assistant</a>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="total-messages">0</h3>
+                <p>رسائل اليوم</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="auto-replies">0</h3>
+                <p>ردود تلقائية</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="active-posts">0</h3>
+                <p>منشورات نشطة</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="success-rate">0%</h3>
+                <p>نسبة النجاح</p>
+            </div>
+        </div>
+        
+        <div class="bot-dashboard">
+            <!-- التحكم العام -->
+            <div class="control-panel">
+                <h2>⚙️ إعدادات عامة</h2>
+                
+                <div class="switch-container">
+                    <span>تشغيل Bot الماسنجر</span>
+                    <div class="switch" id="messenger-bot-switch" onclick="toggleSwitch(this, 'messenger')"></div>
+                </div>
+                
+                <div class="switch-container">
+                    <span>الرد التلقائي على التعليقات</span>
+                    <div class="switch" id="comments-bot-switch" onclick="toggleSwitch(this, 'comments')"></div>
+                </div>
+                
+                <div class="switch-container">
+                    <span>إشعارات WhatsApp للعميل</span>
+                    <div class="switch" id="whatsapp-notif-switch" onclick="toggleSwitch(this, 'whatsapp')"></div>
+                </div>
+                
+                <div class="switch-container">
+                    <span>تسجيل في Google Sheets</span>
+                    <div class="switch" id="sheets-log-switch" onclick="toggleSwitch(this, 'sheets')"></div>
+                </div>
+                
+                <div class="switch-container">
+                    <span>الوضع التجريبي (Test Mode)</span>
+                    <div class="switch" id="test-mode-switch" onclick="toggleSwitch(this, 'test')"></div>
+                </div>
+            </div>
+            
+            <!-- قوالب الردود -->
+            <div class="control-panel">
+                <h2>💬 قوالب الردود</h2>
+                
+                <div class="response-template" id="response-templates">
+                    <div class="template-item">
+                        <h4>رد عام على جميع المنشورات</h4>
+                        <input type="text" placeholder="كلمة مفتاحية (مثال: سعر, تكلفة)" value="سعر">
+                        <textarea rows="3" placeholder="نص الرد...">شكراً لتواصلك! سعر المنتج هو 199 ريال شامل التوصيل.</textarea>
+                        <select style="width:100%;padding:8px;background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:5px;margin-bottom:10px;">
+                            <option>رد تلقائي مباشر</option>
+                            <option>إرسال لـ WhatsApp</option>
+                            <option>إضافة لـ Google Sheets</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn-add" onclick="addTemplate()">➕ إضافة قالب جديد</button>
+                <button class="btn-save" onclick="saveTemplates()">💾 حفظ جميع القوالب</button>
+            </div>
+        </div>
+        
+        <!-- التحكم في المنشورات -->
+        <div class="control-panel" style="margin-bottom:30px;">
+            <h2>📌 إدارة المنشورات</h2>
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
+                <input type="text" id="post-url" placeholder="رابط المنشور (مثال: https://facebook.com/post/123)">
+                <input type="text" id="post-keyword" placeholder="الكلمة المفتاحية لهذا المنشور">
+            </div>
+            
+            <button class="btn-add" onclick="addPost()">📌 إضافة منشور للمراقبة</button>
+            <button class="btn-save" onclick="savePosts()">💾 حفظ قائمة المنشورات</button>
+            
+            <div id="posts-list" style="margin-top:20px;">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+        </div>
+        
+        <!-- سجل الأحداث -->
+        <div class="control-panel">
+            <h2>📝 سجل الأحداث (Logs)</h2>
+            <div class="logs-container" id="logs">
+                <div class="log-item">[14:25:33] البوت بدأ العمل بنجاح</div>
+                <div class="log-item">[14:25:45] تم استلام تعليق جديد على منشور #123</div>
+                <div class="log-item">[14:25:46] تم الرد التلقائي على العميل: أحمد محمد</div>
+            </div>
+            <button class="btn-danger" onclick="clearLogs()" style="margin-top:15px;">🗑️ مسح السجل</button>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+    <script>
+        // تحميل الإعدادات المحفوظة
+        window.onload = function() {
+            loadBotSettings();
+            updateStats();
+            loadTemplates();
+            loadPosts();
+            loadLogs();
+        };
+        
+        function toggleSwitch(element, type) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            saveBotSetting(type, isActive);
+            addLog(`تم ${isActive ? 'تشغيل' : 'إيقاف'} ${type}`);
+        }
+        
+        function saveBotSetting(type, value) {
+            localStorage.setItem(`bot_setting_${type}`, value);
+        }
+        
+        function loadBotSettings() {
+            const settings = ['messenger', 'comments', 'whatsapp', 'sheets', 'test'];
+            settings.forEach(setting => {
+                const value = localStorage.getItem(`bot_setting_${setting}`) === 'true';
+                const element = document.getElementById(`${setting}-bot-switch`) || document.getElementById(`${setting}-switch`);
+                if (element && value) {
+                    element.classList.add('active');
+                }
+            });
+        }
+        
+        function addTemplate() {
+            const container = document.getElementById('response-templates');
+            const newTemplate = document.createElement('div');
+            newTemplate.className = 'template-item';
+            newTemplate.innerHTML = `
+                <h4>قالب جديد</h4>
+                <input type="text" placeholder="كلمة مفتاحية">
+                <textarea rows="3" placeholder="نص الرد..."></textarea>
+                <select style="width:100%;padding:8px;background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:5px;margin-bottom:10px;">
+                    <option>رد تلقائي مباشر</option>
+                    <option>إرسال لـ WhatsApp</option>
+                    <option>إضافة لـ Google Sheets</option>
+                </select>
+                <button class="btn-danger" onclick="removeTemplate(this)">❌ حذف</button>
+            `;
+            container.appendChild(newTemplate);
+        }
+        
+        function removeTemplate(btn) {
+            btn.parentElement.remove();
+        }
+        
+        function saveTemplates() {
+            const templates = [];
+            const templateItems = document.querySelectorAll('.template-item');
+            
+            templateItems.forEach(item => {
+                const inputs = item.querySelectorAll('input, textarea, select');
+                const template = {
+                    keyword: inputs[0].value,
+                    response: inputs[1].value,
+                    action: inputs[2]?.value || 'رد تلقائي مباشر'
+                };
+                templates.push(template);
+            });
+            
+            localStorage.setItem('bot_templates', JSON.stringify(templates));
+            
+            // تأكيد الحفظ
+            const btn = event.target;
+            btn.textContent = '✅ تم الحفظ!';
+            setTimeout(() => btn.textContent = '💾 حفظ جميع القوالب', 2000);
+        }
+        
+        function loadTemplates() {
+            const saved = localStorage.getItem('bot_templates');
+            if (saved) {
+                const templates = JSON.parse(saved);
+                // سيتم تحميل القوالب المحفوظة
+            }
+        }
+        
+        function addPost() {
+            const url = document.getElementById('post-url').value;
+            const keyword = document.getElementById('post-keyword').value;
+            
+            if (url && keyword) {
+                const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+                posts.push({ id: Date.now(), url, keyword, active: true });
+                localStorage.setItem('monitored_posts', JSON.stringify(posts));
+                
+                document.getElementById('post-url').value = '';
+                document.getElementById('post-keyword').value = '';
+                
+                loadPosts();
+                addLog(`✅ تم إضافة منشور جديد للمراقبة: ${keyword}`);
+            }
+        }
+        
+        function loadPosts() {
+            const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+            const container = document.getElementById('posts-list');
+            
+            container.innerHTML = posts.map(post => `
+                <div class="template-item">
+                    <strong>${post.keyword}</strong>
+                    <p style="font-size:12px;color:#aaa;margin:5px 0;">${post.url}</p>
+                    <button class="btn-danger" onclick="removePost(${post.id})">حذف</button>
+                </div>
+            `).join('');
+        }
+        
+        function removePost(id) {
+            const posts = JSON.parse(localStorage.getItem('monitored_posts') || '[]');
+            const filtered = posts.filter(p => p.id !== id);
+            localStorage.setItem('monitored_posts', JSON.stringify(filtered));
+            loadPosts();
+            addLog(`🗑️ تم حذف منشور من المراقبة`);
+        }
+        
+        function savePosts() {
+            addLog('💾 تم حفظ قائمة المنشورات');
+        }
+        
+        function addLog(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item';
+            logItem.textContent = `[${timestamp}] ${message}`;
+            logs.insertBefore(logItem, logs.firstChild);
+            
+            // حفظ في localStorage
+            const allLogs = JSON.parse(localStorage.getItem('bot_logs') || '[]');
+            allLogs.unshift({ timestamp, message });
+            if (allLogs.length > 100) allLogs.pop();
+            localStorage.setItem('bot_logs', JSON.stringify(allLogs));
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            localStorage.removeItem('bot_logs');
+            addLog('🗑️ تم مسح سجل الأحداث');
+        }
+        
+        function loadLogs() {
+            const logs = JSON.parse(localStorage.getItem('bot_logs') || '[]');
+            const container = document.getElementById('logs');
+            
+            container.innerHTML = logs.map(log => 
+                `<div class="log-item">[${log.timestamp}] ${log.message}</div>`
+            ).join('');
+        }
+        
+        function updateStats() {
+            // محاكاة إحصائيات
+            document.getElementById('total-messages').textContent = Math.floor(Math.random() * 100) + 50;
+            document.getElementById('auto-replies').textContent = Math.floor(Math.random() * 50) + 20;
+            document.getElementById('active-posts').textContent = JSON.parse(localStorage.getItem('monitored_posts') || '[]').length;
+            document.getElementById('success-rate').textContent = (Math.random() * 20 + 80).toFixed(1) + '%';
+        }
+        
+        // تحديث الإحصائيات كل 30 ثانية
+        setInterval(updateStats, 30000);
+    </script>
+</body>
+</html>
