@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المناديب - منصة التكامل الذكية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400 ;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        .delegate-form {
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-family: 'Cairo';
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .delegates-list {
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .delegate-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+        }
+        .delegate-info h3 {
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+        .delegate-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .stat {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .delegate-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn-action {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-edit {
+            background: #4ECDC4;
+            color: white;
+        }
+        .btn-delete {
+            background: #FF6B6B;
+            color: white;
+        }
+        .btn-pin {
+            background: #FFD700;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 إدارة المناديب المتقدمة</h1>
+            <p>تعيين كل محافظة لمندوب، وتعديل البينات، ومتابعة الأداء</p>
+        </div>
+        
+        <div class="nav-menu">
+            <a href="/" class="nav-btn">🏠 الرئيسية</a>
+            <a href="/orders.html" class="nav-btn">📦 الطلبات</a>
+            <a href="/bot-control.html" class="nav-btn">🤖 Bot Control</a>
+        </div>
+        
+        <!-- نموذج إضافة مندوب -->
+        <div class="delegate-form">
+            <h2 style="margin-bottom: 20px; color: #ffd700;">➕ إضافة مندوب جديد</h2>
+            <form id="delegate-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>اسم المندوب</label>
+                        <input type="text" id="delegate-name" placeholder="أحمد محمد" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الهاتف</label>
+                        <input type="tel" id="delegate-phone" placeholder="01234567890" required>
+                    </div>
+                    <div class="form-group">
+                        <label>المحافظة المسؤولة</label>
+                        <select id="delegate-governorate" required>
+                            <option value="">-- اختر المحافظة --</option>
+                            <option value="cairo">القاهرة</option>
+                            <option value="alexandria">الإسكندرية</option>
+                            <option value="giza">الجيزة</option>
+                            <option value="mansoura">المنصورة</option>
+                            <option value="tanta">طنطا</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>المناطق الفرعية (افصل بينهم بفاصلة)</label>
+                    <input type="text" id="delegate-areas" placeholder="مصر الجديدة، مدينة نصر، المعادي">
+                </div>
+                
+                <button type="submit" class="btn-primary">➕ إضافة المندوب</button>
+            </form>
+        </div>
+        
+        <!-- قائمة المناديب -->
+        <div class="delegates-list">
+            <h2 style="margin-bottom: 20px; color: #ffd700;">📋 قائمة المناديب</h2>
+            <div id="delegates-container">
+                <p style="text-align: center; color: #888;">لا يوجد مناديب مسجلين</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        window.onload = function() {
+            loadDelegates();
+        };
+        
+        // إضافة مندوب جديد
+        document.getElementById('delegate-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const delegate = {
+                id: Date.now(),
+                name: document.getElementById('delegate-name').value,
+                phone: document.getElementById('delegate-phone').value,
+                governorate: document.getElementById('delegate-governorate').value,
+                areas: document.getElementById('delegate-areas').value.split(',').map(a => a.trim()),
+                active: true,
+                performance: {
+                    totalOrders: 0,
+                    deliveredOrders: 0,
+                    rating: 5.0
+                },
+                pin: generatePin(),
+                createdAt: new Date().toISOString()
+            };
+            
+            const delegates = JSON.parse(localStorage.getItem('delegates') || '[]');
+            delegates.push(delegate);
+            localStorage.setItem('delegates', JSON.stringify(delegates));
+            
+            // إفراغ النموذج
+            document.getElementById('delegate-form').reset();
+            
+            loadDelegates();
+            alert('✅ تم إضافة المندوب بنجاح! PIN: ' + delegate.pin);
+            
+            // إشعار الذكاء المساعد
+            AIAssistant.notifyNewDelegate(delegate);
+        });
+        
+        // تحميل قائمة المناديب
+        function loadDelegates() {
+            const delegates = JSON.parse(localStorage.getItem('delegates') || '[]');
+            const container = document.getElementById('delegates-container');
+            
+            if (delegates.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #888;">لا يوجد مناديب مسجلين</p>';
+                return;
+            }
+            
+            // حساب إحصائيات كل مندوب
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            
+            container.innerHTML = delegates.map(delegate => {
+                const delegateOrders = orders.filter(o => o.delegate === delegate.name);
+                const delivered = delegateOrders.filter(o => o.status === 'delivered').length;
+                const total = delegateOrders.length;
+                
+                return `
+                    <div class="delegate-card">
+                        <div class="delegate-info">
+                            <h3>${delegate.name} ${delegate.active ? '' : '(غير نشط)'}</h3>
+                            <p>📱 ${delegate.phone}</p>
+                            <p>📍 ${getGovernorateName(delegate.governorate)}</p>
+                            <p>📌 PIN: <strong>${delegate.pin}</strong></p>
+                            <div class="delegate-stats">
+                                <div class="stat">📦 الطلبات: ${total}</div>
+                                <div class="stat">✅ مُسلمة: ${delivered}</div>
+                                <div class="stat">⭐ تقييم: ${delegate.performance.rating}/5</div>
+                            </div>
+                        </div>
+                        <div class="delegate-actions">
+                            <button class="btn-action btn-edit" onclick="editDelegate(${delegate.id})">✏️ تعديل</button>
+                            <button class="btn-action btn-pin" onclick="showPin(${delegate.id})">🔐 PIN</button>
+                            <button class="btn-action btn-delete" onclick="deleteDelegate(${delegate.id})">🗑️ حذف</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // تعديل مندوب
+        function editDelegate(id) {
+            const delegates = JSON.parse(localStorage.getItem('delegates') || '[]');
+            const delegate = delegates.find(d => d.id === id);
+            
+            if (!delegate) return;
+            
+            const newName = prompt('اسم المندوب:', delegate.name);
+            if (!newName) return;
+            
+            const newPhone = prompt('رقم الهاتف:', delegate.phone);
+            if (!newPhone) return;
+            
+            const newGovernorate = prompt('المحافظة (cairo, alexandria, ...):', delegate.governorate);
+            if (!newGovernorate) return;
+            
+            delegate.name = newName;
+            delegate.phone = newPhone;
+            delegate.governorate = newGovernorate;
+            
+            localStorage.setItem('delegates', JSON.stringify(delegates));
+            loadDelegates();
+            alert('✅ تم تعديل المندوب بنجاح!');
+        }
+        
+        // عرض PIN
+        function showPin(id) {
+            const delegates = JSON.parse(localStorage.getItem('delegates') || '[]');
+            const delegate = delegates.find(d => d.id === id);
+            
+            if (delegate) {
+                alert(`🔐 PIN الخاص بـ ${delegate.name}:\n${delegate.pin}`);
+            }
+        }
+        
+        // حذف مندوب
+        function deleteDelegate(id) {
+            if (!confirm('⚠️ هل أنت متأكد من حذف هذا المندوب؟')) return;
+            
+            const delegates = JSON.parse(localStorage.getItem('delegates') || '[]');
+            const filtered = delegates.filter(d => d.id !== id);
+            localStorage.setItem('delegates', JSON.stringify(filtered));
+            
+            loadDelegates();
+            alert('🗑️ تم حذف المندوب بنجاح!');
+        }
+        
+        // توليد PIN فريد
+        function generatePin() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
+        
+        // دوال مساعدة
+        function getGovernorateName(code) {
+            const names = {
+                cairo: 'القاهرة',
+                alexandria: 'الإسكندرية',
+                giza: 'الجيزة',
+                mansoura: 'المنصورة',
+                tanta: 'طنطا',
+                other: 'أخرى'
+            };
+            return names[code] || code;
+        }
+    </script>
+    <script src="ai-engine.js"></script>
+</body>
+</html>
