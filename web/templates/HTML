@@ -1,0 +1,9 @@
+📁 web/
+├── 📁 templates/
+│   ├── 📄 login.html (اللي عندك)
+│   ├── 📄 dashboard.html (الجديد)
+│   ├── 📄 api.html (الجديد)
+│   └── 📄 layout.html (قالب أساسي)
+└── 📁 static/
+    └── 📁 css/
+        └── 📄 style.css (ستايلات موحدة)
