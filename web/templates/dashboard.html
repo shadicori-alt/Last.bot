@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block title %}لوحة التحكم - Last.bot{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>📱 حالة WhatsApp</h3>
+            <p class="status {{ 'active' if whatsapp_status else 'inactive' }}">
+                {{ "متصل ✅" if whatsapp_status else "غير متصل ❌" }}
+            </p>
+        </div>
+        
+        <div class="stat-card">
+            <h3>🤖 AI Status</h3>
+            <p class="status active">OpenAI ✅</p>
+        </div>
+        
+        <div class="stat-card">
+            <h3>📊 الرسائل اليوم</h3>
+            <p class="number">{{ message_count }}</p>
+        </div>
+    </div>
+    
+    <div class="action-panel">
+        <h2>إجراءات سريعة</h2>
+        <button onclick="sendTestMessage()">إرسال رسالة اختبار</button>
+        <button onclick="reloadBot()">إعادة تشغيل البوت</button>
+        <button onclick="viewLogs()">عرض السجلات</button>
+    </div>
+    
+    <div class="logs-section">
+        <h2>📋 آخر الأنشطة</h2>
+        <pre id="logs">{{ logs }}</pre>
+    </div>
+</div>
+
+<script>
+function sendTestMessage() {
+    fetch('/api/test-message', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer {{ token }}'}
+    }).then(r => r.json()).then(data => {
+        alert(data.message || data.error);
+    });
+}
+
+function reloadBot() {
+    if(confirm('هل أنت متأكد من إعادة التشغيل؟')) {
+        fetch('/api/restart', {
+            method: 'POST',
+            headers: {'Authorization': 'Bearer {{ token }}'}
+        }).then(() => location.reload());
+    }
+}
+
+function viewLogs() {
+    window.open('/api/logs', '_blank');
+}
+</script>
+{% endblock %}
