@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - مساعدك الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .chat-container {
+            flex: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background: #4361ee;
+            margin-left: auto;
+            text-align: right;
+        }
+        .bot-message {
+            background: rgba(255,255,255,0.1);
+            margin-right: auto;
+            text-align: right;
+        }
+        .typing-indicator {
+            display: none;
+            padding: 10px;
+            color: #888;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        .input-container input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Cairo';
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .input-container button {
+            padding: 15px 30px;
+            background: #00ff88;
+            color: #0f0c29;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Cairo';
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .quick-commands {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .quick-commands button {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Cairo';
+        }
+        .system-status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 مساعدك الذكي</h1>
+        <p>اسألني أي شيء عن المنصة</p>
+    </div>
+    
+    <div class="system-status">
+        AI: <span id="ai-status">⚫ غير متصل</span>
+    </div>
+    
+    <div class="chat-container">
+        <div class="quick-commands">
+            <button onclick="sendCommand('ما هي إعدادات الـ api')">⚙️ APIs</button>
+            <button onclick="sendCommand('هل البوت يعمل')">🤖 حالة البوت</button>
+            <button onclick="sendCommand('إحصائيات')">📊 إحصائيات</button>
+            <button onclick="sendCommand('كم عدد المنشورات النشطة')">📌 المنشورات</button>
+        </div>
+        
+        <div class="messages" id="messages">
+            <div class="message bot-message">
+                مرحباً! أنا مساعدك الذكي. يمكنني مساعدتك في:
+                <br>• إدارة APIs
+                <br>• مراقبة البوت
+                <br>• تحليل الإحصائيات
+                <br>• التحكم في المنشورات
+                <br><br>ماذا تحتاج؟
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typing">🤔 يكتب...</div>
+        
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="اكتب سؤالك هنا..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">إرسال</button>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+    <script src="ai-engine.js"></script>
+    <script>
+        let aiConnection = false;
+        
+        // تهيئة AI عند التحميل
+        window.onload = async function() {
+            await AIEngine.init();
+            const result = await AIEngine.testConnection();
+            aiConnection = result.success;
+            document.getElementById('ai-status').innerHTML = aiConnection ? 
+                '🟢 متصل' : '🔴 غير متصل (يعمل بالذكاء البديل)';
+        };
+        
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, 'user');
+            input.value = '';
+            
+            showTyping(true);
+            
+            // معالجة الرسالة بالذكاء الصناعي
+            setTimeout(() => {
+                processMessage(message);
+            }, 1000);
+        }
+        
+        function sendCommand(command) {
+            document.getElementById('user-input').value = command;
+            sendMessage();
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        async function processMessage(message) {
+            showTyping(true);
+            
+            try {
+                // استخدام الذكاء الصناعي
+                const response = await AIEngine.sendMessage('system', message);
+                addMessage(response, 'bot');
+                
+                // تنفيذ إجراءات إضافية
+                executeCommand(message);
+                
+            } catch (error) {
+                addMessage('عذراً، حدث خطأ: ' + error.message, 'bot');
+            }
+            
+            showTyping(false);
+        }
+        
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = text;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function showTyping(show) {
+            document.getElementById('typing').style.display = show ? 'block' : 'none';
+        }
+        
+        function executeCommand(command) {
+            // تنفيذ أوامر النظام بناءً على الإذن
+            if (command.includes('مسح السجل')) {
+                if (confirm('هل أنت متأكد من مسح السجل؟')) {
+                    BotPlatform.addLog('AI Assistant', 'تم مسح السجل بناءً على أمر المساعد');
+                }
+            }
+            
+            if (command.includes('حفظ') && command.includes('إعدادات')) {
+                BotPlatform.saveSettings();
+                addMessage('✅ تم حفظ جميع الإعدادات', 'bot');
+            }
+        }
+        
+        // دعم الأوامر الصوتية (اختياري)
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'ar-SA';
+            recognition.continuous = false;
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('user-input').value = transcript;
+                sendMessage();
+            };
+            
+            function startVoice() {
+                recognition.start();
+            }
+        }
+    </script>
+</body>
+</html>
