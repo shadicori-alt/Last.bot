@@ -7,19 +7,19 @@
     <div class="stats-grid">
         <div class="stat-card">
             <h3>📱 حالة WhatsApp</h3>
-            <p class="status {{ 'active' if whatsapp_status else 'inactive' }}">
-                {{ "متصل ✅" if whatsapp_status else "غير متصل ❌" }}
+            <p class="status {% if whatsapp_status %}active{% else %}inactive{% endif %}">
+                {% if whatsapp_status %}متصل ✅{% else %}غير متصل ❌{% endif %}
             </p>
         </div>
         
         <div class="stat-card">
-            <h3>🤖 AI Status</h3>
+            <h3>🤖 حالة الذكاء الاصطناعي</h3>
             <p class="status active">OpenAI ✅</p>
         </div>
         
         <div class="stat-card">
             <h3>📊 الرسائل اليوم</h3>
-            <p class="number">{{ message_count }}</p>
+            <p class="number">{{ message_count|default(0) }}</p>
         </div>
     </div>
     
@@ -32,7 +32,7 @@
     
     <div class="logs-section">
         <h2>📋 آخر الأنشطة</h2>
-        <pre id="logs">{{ logs }}</pre>
+        <pre id="logs">{{ logs|default('لا توجد سجلات حتى الآن')|escape }}</pre>
     </div>
 </div>
 
@@ -40,9 +40,17 @@
 function sendTestMessage() {
     fetch('/api/test-message', {
         method: 'POST',
-        headers: {'Authorization': 'Bearer {{ token }}'}
-    }).then(r => r.json()).then(data => {
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': '{{ csrf_token() }}'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
         alert(data.message || data.error);
+    })
+    .catch(error => {
+        alert('خطأ في الإرسال: ' + error);
     });
 }
 
@@ -50,8 +58,18 @@ function reloadBot() {
     if(confirm('هل أنت متأكد من إعادة التشغيل؟')) {
         fetch('/api/restart', {
             method: 'POST',
-            headers: {'Authorization': 'Bearer {{ token }}'}
-        }).then(() => location.reload());
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '{{ csrf_token() }}'
+            }
+        })
+        .then(() => {
+            alert('تم إعادة التشغيل بنجاح');
+            location.reload();
+        })
+        .catch(error => {
+            alert('خطأ في إعادة التشغيل: ' + error);
+        });
     }
 }
 
