@@ -1,40 +1,145 @@
 {% extends "layout.html" %}
 
-{% block title %}API Documentation - Last.bot{% endblock %}
+{% block title %}توثيق API - Last.bot{% endblock %}
 
 {% block content %}
 <div class="api-docs">
-    <h1>📡 API Documentation</h1>
+    <h1>📡 توثيق واجهة البرمجة</h1>
     
     <div class="endpoint">
         <h3>POST /api/auth/login</h3>
-        <p>تسجيل الدخول</p>
+        <p>تسجيل الدخول والحصول على توكن</p>
         <pre>{
-  "username": "admin",
-  "password": "123456"
+  "username": "اسم المستخدم",
+  "password": "كلمة المرور"
 }</pre>
+        <p><strong>الرد:</strong> { "token": "التوكن", "expires": "الوقت" }</p>
     </div>
     
     <div class="endpoint">
         <h3>GET /api/status</h3>
-        <p>حالة البوت</p>
+        <p>جلب حالة النظام والبوت</p>
         <button onclick="testEndpoint('/api/status')">اختبار</button>
     </div>
     
     <div class="endpoint">
         <h3>GET /api/whatsapp/qr</h3>
-        <p>جلب QR Code</p>
+        <p>جلب كود QR لتسجيل الدخول في واتساب</p>
         <button onclick="testEndpoint('/api/whatsapp/qr')">اختبار</button>
+    </div>
+
+    <div class="endpoint">
+        <h3>POST /api/messages/send</h3>
+        <p>إرسال رسالة إلى مستخدم</p>
+        <pre>{
+  "phone": "رقم الهاتف",
+  "message": "نص الرسالة"
+}</pre>
     </div>
 </div>
 
 <script>
 function testEndpoint(url) {
+    // الحصول على التوكن من localStorage أو prompt
+    const token = localStorage.getItem('auth_token') || prompt('أدخل التوكن:');
+    
+    if (!token) {
+        alert('❌ يرجى إدخال التوكن أولاً');
+        return;
+    }
+
     fetch(url, {
-        headers: {'Authorization': 'Bearer {{ token }}'}
-    }).then(r => r.json()).then(data => {
-        alert(JSON.stringify(data, null, 2));
-    }).catch(err => alert('خطأ: ' + err));
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('خطأ في الخادم: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('✅ النتيجة:\n' + JSON.stringify(data, null, 2));
+    })
+    .catch(err => {
+        alert('❌ خطأ: ' + err.message);
+    });
 }
+
+// دالة لتسجيل الدخول وحفظ التوكن
+function login() {
+    const username = prompt('اسم المستخدم:');
+    const password = prompt('كلمة المرور:');
+    
+    fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.token) {
+            localStorage.setItem('auth_token', data.token);
+            alert('✅ تم التسجيل بنجاح!');
+        } else {
+            alert('❌ فشل التسجيل: ' + data.error);
+        }
+    });
+}
+
+// زر إضافي للتسجيل
+document.addEventListener('DOMContentLoaded', function() {
+    const actionDiv = document.querySelector('.api-docs');
+    const loginBtn = document.createElement('button');
+    loginBtn.textContent = 'تسجيل الدخول';
+    loginBtn.onclick = login;
+    loginBtn.style.margin = '10px';
+    actionDiv.insertBefore(loginBtn, actionDiv.firstChild);
+});
 </script>
+
+<style>
+.api-docs {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.endpoint {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+.endpoint h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.endpoint pre {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover {
+    background: #2980b9;
+}
+</style>
 {% endblock %}
