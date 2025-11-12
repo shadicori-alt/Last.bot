@@ -1,80 +1,45 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة التحكم - Last.bot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h2>🤖 Last.bot</h2>
+            <ul class="nav-menu">
+                <li><a href="/dashboard">الرئيسية</a></li>
+                <li><a href="/api/docs">API</a></li>
+                <li><a href="/logout">تسجيل خروج</a></li>
+            </ul>
+        </div>
+    </nav>
 
-{% block title %}لوحة التحكم - Last.bot{% endblock %}
-
-{% block content %}
-<div class="dashboard-container">
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h3>📱 حالة WhatsApp</h3>
-            <p class="status {% if whatsapp_status %}active{% else %}inactive{% endif %}">
-                {% if whatsapp_status %}متصل ✅{% else %}غير متصل ❌{% endif %}
-            </p>
+    <div class="main-content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>📱 حالة WhatsApp</h3>
+                <p class="status active">متصل ✅</p>
+            </div>
+            
+            <div class="stat-card">
+                <h3>🤖 حالة الذكاء الاصطناعي</h3>
+                <p class="status active">نشط ✅</p>
+            </div>
+            
+            <div class="stat-card">
+                <h3>📊 الرسائل اليوم</h3>
+                <p class="number">0</p>
+            </div>
         </div>
         
-        <div class="stat-card">
-            <h3>🤖 حالة الذكاء الاصطناعي</h3>
-            <p class="status active">OpenAI ✅</p>
-        </div>
-        
-        <div class="stat-card">
-            <h3>📊 الرسائل اليوم</h3>
-            <p class="number">{{ message_count|default(0) }}</p>
+        <div class="action-panel">
+            <h2>إجراءات سريعة</h2>
+            <button onclick="sendTestMessage()">إرسال رسالة اختبار</button>
+            <button onclick="reloadBot()">إعادة تشغيل البوت</button>
         </div>
     </div>
-    
-    <div class="action-panel">
-        <h2>إجراءات سريعة</h2>
-        <button onclick="sendTestMessage()">إرسال رسالة اختبار</button>
-        <button onclick="reloadBot()">إعادة تشغيل البوت</button>
-        <button onclick="viewLogs()">عرض السجلات</button>
-    </div>
-    
-    <div class="logs-section">
-        <h2>📋 آخر الأنشطة</h2>
-        <pre id="logs">{{ logs|default('لا توجد سجلات حتى الآن')|escape }}</pre>
-    </div>
-</div>
-
-<script>
-function sendTestMessage() {
-    fetch('/api/test-message', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': '{{ csrf_token() }}'
-        }
-    })
-    .then(r => r.json())
-    .then(data => {
-        alert(data.message || data.error);
-    })
-    .catch(error => {
-        alert('خطأ في الإرسال: ' + error);
-    });
-}
-
-function reloadBot() {
-    if(confirm('هل أنت متأكد من إعادة التشغيل؟')) {
-        fetch('/api/restart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': '{{ csrf_token() }}'
-            }
-        })
-        .then(() => {
-            alert('تم إعادة التشغيل بنجاح');
-            location.reload();
-        })
-        .catch(error => {
-            alert('خطأ في إعادة التشغيل: ' + error);
-        });
-    }
-}
-
-function viewLogs() {
-    window.open('/api/logs', '_blank');
-}
-</script>
-{% endblock %}
+</body>
+</html>
